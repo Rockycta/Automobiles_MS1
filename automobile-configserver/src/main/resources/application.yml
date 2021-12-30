@@ -5,7 +5,7 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/Rockycta/automobile-configrepo.git
+          uri: https://rockycta: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@github.com/Rockycta/automobile-configrepo.git
           default-label: master
   application:
     name: ConfigServer
