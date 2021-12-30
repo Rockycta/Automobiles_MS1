@@ -1,0 +1,138 @@
+server:
+  port: 8889
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          uri: file://F:/microservices/automobiles_configrepo
+
+Error : 
+
+java.lang.IllegalStateException: Cannot load environment
+	at org.springframework.cloud.config.server.environment.JGitEnvironmentRepository.refresh(JGitEnvironmentRepository.java:323) ~[spring-cloud-config-server-3.1.0.jar:3.1.0]
+	at 
+
+Caused by: java.lang.IllegalStateException: No .git at file://F:/microservices/automobiles_configrepo
+	at org.springframework.util.Assert.state(Assert.java:76) ~[spring-core-5.3.14.jar:5.3.14]
+	at 
+
+
+Solution
+
+Local git repository not created or initialized at correct location. 
+
+Below is the local repository directory , but local git is not configured ,  git was initialized in the microservices folder , which is of no use. 
+
+Point to be noted is where ever yml files or configuration files  will be present , in that directory “git init” or git local repo should be created , added to stage , should be made commit , then only configuration gets loaded into automobiles_configrepo
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+$ ls -ltra
+total 1
+drwxr-xr-x 1 Rocky 197121   0 Dec 29 23:17 ./
+drwxr-xr-x 1 Rocky 197121   0 Dec 29 23:41 ../
+-rw-r--r-- 1 Rocky 197121 248 Dec 30 12:14 inventory-mgmt-service.yml
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+$ git init
+Initialized empty Git repository in F:/microservices/automobiles_configrepo/.git/
+
+
+detailed steps : 
+==================
+
+no git repo -
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+$ ls -ltra
+total 1
+drwxr-xr-x 1 Rocky 197121   0 Dec 29 23:17 ./
+drwxr-xr-x 1 Rocky 197121   0 Dec 29 23:41 ../
+-rw-r--r-- 1 Rocky 197121 248 Dec 30 12:14 inventory-mgmt-service.yml
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+$ cd ..
+
+
+Git repository exist but in parent directory which is of no use 
+
+Rocky@Rakesh MINGW64 /f/microservices (master)
+$ ls -ltra
+total 16
+drwxr-xr-x 1 Rocky 197121 0 Dec 29 23:17 automobiles_configrepo/
+drwxr-xr-x 1 Rocky 197121 0 Dec 29 23:41 ./
+drwxr-xr-x 1 Rocky 197121 0 Dec 29 23:44 .git/
+drwxr-xr-x 1 Rocky 197121 0 Dec 30 12:25 ../
+
+Rocky@Rakesh MINGW64 /f/microservices (master)
+$ cd automobiles_configrepo/
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+$ git init
+Initialized empty Git repository in F:/microservices/automobiles_configrepo/.git/
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+$ git status
+On branch master
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        inventory-mgmt-service.yml
+
+nothing added to commit but untracked files present (use "git add" to track)
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+$ git add --all
+warning: LF will be replaced by CRLF in inventory-mgmt-service.yml.
+The file will have its original line endings in your working directory
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+$ git status
+On branch master
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+        new file:   inventory-mgmt-service.yml
+
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+$ git commit -m "inventory-mgmt-service file exist"
+Author identity unknown
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'Rocky@Rakesh.(none)')
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+$ git config user.email rocky.cta@gmail.com
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+$ git config user.name rockycta
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+$ git commit -m "inventory-mgmt-service file exist"
+[master (root-commit) 42e766b] inventory-mgmt-service file exist
+ 1 file changed, 14 insertions(+)
+ create mode 100644 inventory-mgmt-service.yml
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+
+
+run the project or app in STS or command prompt
+
+open postman and check 
+http://localhost:8889/inventory-mgmt-service.yml
+
+
