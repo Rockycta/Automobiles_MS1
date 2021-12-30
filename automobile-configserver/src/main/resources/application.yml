@@ -9,4 +9,9 @@ spring:
           default-label: master
   application:
     name: ConfigServer
-
+  security:
+    user:
+      name: configadmin
+      password: welcome1
+      roles:
+      - admin
