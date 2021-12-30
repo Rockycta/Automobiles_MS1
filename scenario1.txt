@@ -1,0 +1,63 @@
+server:
+  port: 8889
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          uri: file://F:/microservices/automobiles_configrepo
+
+Error
+
+org.springframework.cloud.config.server.environment.NoSuchLabelException: No such label: main
+	at org.springframework.cloud.config.server.environment.JGitEnvironmentRepository.refresh(JGitEnvironmentRepository.java:314) ~[spring-cloud-config-server-3.1.0.jar:3.1.0]
+
+[36m.c.s.e.MultipleJGitEnvironmentRepository [0;39m [2m: [0;39m Will try to checkout master label instead.
+[0;39m Adding property source: Config resource 'file [F:\microservices\automobiles_configrepo\inventory-mgmt-service.yml]' via location 'file:/F:/microservices/automobiles_configrepo/'
+
+
+
+Solution :
+The local git repo that I created was with branch name as master , but config server looking for main as branch hence above error. 
+First config server looks for branch name main branch to find the configuration information , if Main branch not found then it go and check master branch
+
+Rocky@Rakesh MINGW64 /f/microservices/automobiles_configrepo (master)
+$ ls -ltra
+total 5
+drwxr-xr-x 1 Rocky 197121   0 Dec 29 23:41 ../
+-rw-r--r-- 1 Rocky 197121 248 Dec 30 12:14 inventory-mgmt-service.yml
+drwxr-xr-x 1 Rocky 197121   0 Dec 30 12:40 ./
+drwxr-xr-x 1 Rocky 197121   0 Dec 30 13:07 .git/
+
+To let the config server look for the master branch , don’t search for the main branch . Add following property 
+
+https://stackoverflow.com/questions/40024161/spring-config-server-no-such-label-master - solution found in this post.
+
+server:
+  port: 8889
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          uri: file://F:/microservices/automobiles_configrepo
+          default-label: master
+  application:
+    name: ConfigServer
+
+
+Error
+org.springframework.cloud.config.server.environment.NoSuchLabelException: No such label: main
+	at org.springframework.cloud.config.server.environment.JGitEnvironmentRepository.refresh(JGitEnvironmentRepository.java:314) ~[spring-cloud-config-server-3.1.0.jar:3.1.0]
+	at org.springframework.cloud.config.server.environment.JGitEnvironmentRepository.getLocations(JGitEnvironmentRepository.java:262) ~[spring-cloud-config-server-3.1.0.jar:3.1.0]
+
+Caused by: org.eclipse.jgit.api.errors.RefNotFoundException: Ref main cannot be resolved
+	at org.eclipse.jgit.api.CheckoutCommand.call(CheckoutCommand.java:223) ~[org.eclipse.jgit-5.12.0.202106070339-r.jar:5.12.0.202106070339-r]
+	at org.springframework.cloud.config.server.environment.JGitEnvironmentRepository.checkout(JGitEnvironmentRepository.java:468) ~[spring-cloud-config-server-3.1.0.jar:3.1.0]
+	at org.springframework.cloud.config.server.environment.JGitEnvironmentRepository.refresh(JGitEnvironmentRepository.java:307) ~[spring-cloud-config-server-3.1.0.jar:3.1.0]
+	... 71 common frames omitted
+
+ [2m2021-12-30 12:43:15.250 [0;39m [32m INFO [0;39m [35m18356 [0;39m [2m--- [0;39m [2m[nio-8889-exec-2] [0;39m [36m.c.s.e.MultipleJGitEnvironmentRepository [0;39m [2m: [0;39m Will try to checkout master label instead.
+ [2m2021-12-30 12:43:15.374 [0;39m [33m WARN [0;39m [35m18356 [0;39m [2m--- [0;39m [2m[nio-8889-exec-2] [0;39m [36m.c.s.e.MultipleJGitEnvironmentRepository [0;39m [2m: [0;39m Could not merge remote for master remote: null
+ [2m2021-12-30 12:43:15.494 [0;39m [32m INFO [0;39m [35m18356 [0;39m [2m--- [0;39m [2m[nio-8889-exec-2] [0;39m [36mo.s.c.c.s.e.NativeEnvironmentRepository [0;39m [2m: [0;39m Adding property source: Config resource 'file [F:\microservices\automobiles_configrepo\inventory-mgmt-service.yml]' via location 'file:/F:/microservices/automobiles_configrepo/'
+[2m2021-12-30 12:56:11.849[0;39m [32m INFO[0;39m [35m18356[0;39m [2m---[0;39m [2m[n(22)-127.0.0.1][0;39m [36minMXBeanRegistrar$SpringApplicationAdmin[0;39m [2m:[0;39m Application shutdown requested.
